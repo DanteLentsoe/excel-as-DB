@@ -2,34 +2,44 @@
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import * as XLSX from 'xlsx';
-
+import DatePicker from 'react-datepicker';
 import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import 'ag-grid-community/styles/ag-theme-quartz.css';
+import 'react-datepicker/dist/react-datepicker.css';
+// import 'ag-grid-community/styles/ag-theme-quartz.css';
 import { CellValueChangedEvent } from 'ag-grid-community';
+import { NavigationBar } from '../NavigationBar';
+import { Button } from '../../atoms/Button';
+import { Modal } from '../../molecules/Modal';
+import { useModalStore } from '@/store';
 
 type ColumnDef = {
   field: string;
   headerName: string;
   editable?: boolean;
   filter?: boolean;
-  // Add any other properties you use in your column definitions
+  type?: string;
 };
 export const ExcelReader: React.FC = () => {
   const [items, setItems] = useState<any[]>([]);
   const [rowData, setRowData] = useState<Array<{ [key: string]: any }>>([]);
   const [selectedRowNodes, setSelectedRowNodes] = useState<any[]>([]);
-
+  const [newRowData, setNewRowData] = useState<{ [key: string]: any }>({});
   const onSelectionChanged = () => {
     const selectedNodes = gridApi.getSelectedNodes();
     setSelectedRowNodes(selectedNodes);
   };
+  const [worksheetName, setWorksheetName] = useState<string | undefined>(
+    undefined
+  );
 
   const [gridApi, setGridApi] = useState<any | null>(null);
   const [searchText, setSearchText] = useState('');
   const [columnDefs, setColumnDefs] = useState<ColumnDef[]>([]);
   const gridRef = useRef<AgGridReact>(null);
+  const { openModal, closeModal } = useModalStore((state) => state);
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files ? e.target.files[0] : null;
     if (!file) return;
@@ -37,6 +47,7 @@ export const ExcelReader: React.FC = () => {
     const data = await file.arrayBuffer();
     const workbook = XLSX.read(data, { type: 'buffer' });
     const worksheetName = workbook.SheetNames[0];
+    setWorksheetName(worksheetName); // Store the worksheet name in state
     const worksheet = workbook.Sheets[worksheetName];
     const json: any[] = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
@@ -46,22 +57,46 @@ export const ExcelReader: React.FC = () => {
         field: `field${index}`,
         editable: true,
         filter: true,
+        type: 'text',
       }));
       const rows = json.slice(1).map((row, index) => {
         const rowData: { [key: string]: any } = {}; // Define rowData with an index signature
         row.forEach((cell: any, cellIndex: any) => {
-          rowData[`field${cellIndex}`] = cell;
+          // Convert to number if possible, otherwise use the string value
+          rowData[`field${cellIndex}`] = isNaN(cell) ? cell : Number(cell);
         });
         return rowData;
       });
       // Save to local storage
       localStorage.setItem(
         'excelData',
-        JSON.stringify({ columns: headers, rows: rows })
+        JSON.stringify({
+          columns: headers,
+          rows: rows,
+          sheetName: worksheetName,
+        })
       );
       setColumnDefs([...headers, deleteColumn]);
       setRowData(rows);
     }
+  };
+
+  const handleAddRow = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const updatedRowData = [...rowData, newRowData];
+    setRowData(updatedRowData);
+    setNewRowData({}); // Reset form data
+
+    // Update local storage
+    const updatedData = { columns: columnDefs, rows: updatedRowData };
+    localStorage.setItem('excelData', JSON.stringify(updatedData));
+  };
+
+  const handleInputChange = (field: string, value: string) => {
+    const updatedData = { ...newRowData, [field]: value };
+
+    console.log('Updated Row Data:', updatedData);
+    setNewRowData(updatedData);
   };
 
   const deleteCellRenderer = (params: any) => {
@@ -81,9 +116,10 @@ export const ExcelReader: React.FC = () => {
   useEffect(() => {
     const savedData = localStorage.getItem('excelData');
     if (savedData) {
-      const { columns, rows } = JSON.parse(savedData);
+      const { columns, rows, sheetName } = JSON.parse(savedData);
       setColumnDefs(columns);
       setRowData(rows);
+      setWorksheetName(sheetName);
     }
   }, []);
 
@@ -126,6 +162,7 @@ export const ExcelReader: React.FC = () => {
     ];
 
     const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+
     const newWorkbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(newWorkbook, worksheet, 'Sheet1');
 
@@ -160,10 +197,46 @@ export const ExcelReader: React.FC = () => {
 
   return (
     <div>
-      <input type="file" accept=".xlsx, .xls" onChange={handleFile} />
+      <NavigationBar handleFile={handleFile} />
+
+      <div className="flex justify-start gap-4 my-4">
+        <Button
+          onClick={() => {
+            openModal('base-form');
+          }}
+          className="ml-8"
+          variant={'tailwindConnect'}
+        >
+          Add
+        </Button>
+        {/* <button
+          onClick={handleBulkDelete}
+          className="px-4 py-2 bg-red-500 text-white font-semibold rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+        >
+          Delete Selected Rows
+        </button> */}
+      </div>
+
+      <div className="flex justify-end gap-4 my-4">
+        <Button
+          onClick={saveChanges}
+          className="mr-8 "
+          variant={'tailwindConnect'}
+        >
+          Save Changes
+        </Button>
+        {/* <button
+          onClick={handleBulkDelete}
+          className="px-4 py-2 bg-red-500 text-white font-semibold rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+        >
+          Delete Selected Rows
+        </button> */}
+      </div>
+
       <div
-        className="ag-theme-alpine"
-        style={{ height: 800, width: '100%', padding: 18 }}
+        className="ag-theme-alpine-dark"
+        id="myGrid"
+        style={{ height: 800, width: '100%', padding: 32 }}
       >
         <AgGridReact
           rowData={rowData}
@@ -185,8 +258,60 @@ export const ExcelReader: React.FC = () => {
           paginationPageSizeSelector={[10, 20, 50, 100, 200]}
         />
       </div>
-      <button onClick={saveChanges}>Save Changes</button>
-      <button onClick={handleBulkDelete}>Delete Selected Rows</button>
+
+      <Modal
+        id={'base-form'}
+        title={worksheetName || 'Base Form'}
+        className="w-96 h-96"
+      >
+        <form
+          onSubmit={handleAddRow}
+          className="mt-4 grid grid-cols-2 gap-4 justify-center items-center"
+        >
+          {columnDefs.map((colDef) => {
+            return colDef.type === 'date' ? (
+              <DatePicker
+                key={colDef.field}
+                selected={newRowData[colDef.field]}
+                onChange={(date) =>
+                  handleInputChange(
+                    colDef.field,
+                    date ? date.toISOString().split('T')[0] : ''
+                  )
+                }
+                className="px-3 py-2 text-zinc-950 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              />
+            ) : (
+              <input
+                key={colDef.field}
+                type={colDef.type === 'number' ? 'number' : 'text'}
+                placeholder={colDef.headerName}
+                value={newRowData[colDef.field] || ''}
+                onChange={(e) =>
+                  handleInputChange(colDef.field, e.target.value)
+                }
+                className="px-3 py-2 text-white bg-gray-800 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              />
+            );
+          })}
+          {/* Grouping buttons together */}
+          <div className="mt-2 flex flex-row gap-52">
+            <Button
+              className="text-white font-semibold w-64"
+              variant={'shimmer'}
+            >
+              Add Row
+            </Button>
+            <Button
+              className="text-white font-semibold w-full"
+              variant={'shimmer'}
+              onClick={() => closeModal('base-form')}
+            >
+              Close
+            </Button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 };
