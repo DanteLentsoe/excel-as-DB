@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@headlessui/react": "^1.7.18",
+    "@heroicons/react": "^2.1.1",
     "@tabler/icons-react": "^2.47.0",
     "@tsparticles/engine": "^3.3.0",
     "@tsparticles/react": "^3.0.0",
@@ -21,15 +23,19 @@
     "next": "14.1.0",
     "papaparse": "^5.4.1",
     "react": "^18",
+    "react-datepicker": "^6.2.0",
     "react-dom": "^18",
     "react-element-to-jsx-string": "^15.0.0",
     "sonner": "^1.4.2",
     "tailwind-merge": "^2.2.1",
-    "xlsx": "^0.18.5"
+    "tailwindcss-filters": "^3.0.0",
+    "xlsx": "^0.18.5",
+    "zustand": "^4.5.1"
   },
   "devDependencies": {
     "@types/node": "^20",
     "@types/react": "^18",
+    "@types/react-datepicker": "^6.0.2",
     "@types/react-dom": "^18",
     "autoprefixer": "^10.0.1",
     "eslint": "^8",

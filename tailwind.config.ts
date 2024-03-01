@@ -17,6 +17,10 @@ const config: Config = {
         'gradient-conic':
           'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
       },
+      backdropFilter: {
+        none: 'none',
+        blur: 'blur(10px)',
+      },
       keyframes: {
         shimmer: {
           from: {
@@ -29,6 +33,6 @@ const config: Config = {
       },
     },
   },
-  plugins: [],
+  plugins: [require('tailwindcss-filters')],
 };
 export default config;
