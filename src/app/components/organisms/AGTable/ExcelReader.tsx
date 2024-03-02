@@ -8,7 +8,6 @@ import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import 'ag-grid-community/styles/ag-theme-quartz.css';
 import 'react-datepicker/dist/react-datepicker.css';
-// import 'ag-grid-community/styles/ag-theme-quartz.css';
 import { CellValueChangedEvent } from 'ag-grid-community';
 import { NavigationBar } from '../NavigationBar';
 import { Button } from '../../atoms/Button';
@@ -21,7 +20,9 @@ type ColumnDef = {
   editable?: boolean;
   filter?: boolean;
   type?: string;
+  cellRenderer?: React.JSX.Element;
 };
+
 export const ExcelReader: React.FC = () => {
   const [items, setItems] = useState<any[]>([]);
   const [rowData, setRowData] = useState<Array<{ [key: string]: any }>>([]);
@@ -199,38 +200,23 @@ export const ExcelReader: React.FC = () => {
     <div>
       <NavigationBar handleFile={handleFile} />
 
-      <div className="flex justify-start gap-4 my-4">
+      <div className="flex justify-between my-4 mx-8 mt-8">
         <Button
+          className="w-32 h-8 text-center"
           onClick={() => {
             openModal('base-form');
           }}
-          className="ml-8"
-          variant={'tailwindConnect'}
+          variant={'borderMagic'}
         >
           Add
         </Button>
-        {/* <button
-          onClick={handleBulkDelete}
-          className="px-4 py-2 bg-red-500 text-white font-semibold rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-        >
-          Delete Selected Rows
-        </button> */}
-      </div>
-
-      <div className="flex justify-end gap-4 my-4">
         <Button
           onClick={saveChanges}
-          className="mr-8 "
-          variant={'tailwindConnect'}
+          className="w-32 h-8 text-center"
+          variant={'borderMagic'}
         >
           Save Changes
         </Button>
-        {/* <button
-          onClick={handleBulkDelete}
-          className="px-4 py-2 bg-red-500 text-white font-semibold rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-        >
-          Delete Selected Rows
-        </button> */}
       </div>
 
       <div
