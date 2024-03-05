@@ -72,12 +72,12 @@ export const ExcelReader: React.FC = () => {
       localStorage.setItem(
         'excelData',
         JSON.stringify({
-          columns: headers,
+          columns: [...headers, deleteColumn],
           rows: rows,
           sheetName: worksheetName,
         })
       );
-      setColumnDefs([...headers, deleteColumn]);
+      setColumnDefs([...headers, testColumn, deleteColumn]);
       setRowData(rows);
     }
   };
@@ -118,7 +118,7 @@ export const ExcelReader: React.FC = () => {
     const savedData = localStorage.getItem('excelData');
     if (savedData) {
       const { columns, rows, sheetName } = JSON.parse(savedData);
-      setColumnDefs(columns);
+      setColumnDefs([...columns, deleteColumn]);
       setRowData(rows);
       setWorksheetName(sheetName);
     }
@@ -135,16 +135,37 @@ export const ExcelReader: React.FC = () => {
   //   setRowData(updatedRowData);
   // };
 
+  // const deleteColumn = {
+  //   headerName: '',
+  //   field: 'delete',
+  //   cellRendererFramework: (params: any) => (
+  //     <button onClick={() => handleDelete(params.node)}>Delete</button>
+  //   ),
+  //   filter: false,
+  //   sortable: false,
+  //   width: 100,
+  // };
+
+  const testColumn = {
+    headerName: 'Test',
+    field: 'test',
+    valueGetter: () => 'Test Value',
+  };
+  const DeleteButton = ({ onDelete }) => {
+    return <button onClick={onDelete}>Delete</button>;
+  };
+
   const deleteColumn = {
     headerName: '',
     field: 'delete',
-    cellRendererFramework: (params: any) => (
-      <button onClick={() => handleDelete(params.node)}>Delete</button>
+    cellRenderer: (params) => (
+      <DeleteButton onDelete={() => handleDelete(params.node)} />
     ),
     filter: false,
     sortable: false,
     width: 100,
   };
+
   const onGridReady = (params: { api: any }) => {
     setGridApi(params.api);
   };
@@ -174,6 +195,7 @@ export const ExcelReader: React.FC = () => {
   const handleDelete = (node: any) => {
     const selectedRowNode = node;
     const selectedRowIndex = selectedRowNode.rowIndex;
+    console.log('Deleting row at index:', selectedRowIndex);
 
     // Update rowData state to remove the deleted row
     const updatedRowData = rowData.filter(
