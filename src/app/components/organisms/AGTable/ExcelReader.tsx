@@ -77,7 +77,7 @@ export const ExcelReader: React.FC = () => {
           sheetName: worksheetName,
         })
       );
-      setColumnDefs([...headers, testColumn, deleteColumn]);
+      setColumnDefs([...headers, deleteColumn]);
       setRowData(rows);
     }
   };
@@ -130,36 +130,13 @@ export const ExcelReader: React.FC = () => {
     setItems(updatedItems);
   };
 
-  // const handleDelete = (rowIndex: number) => {
-  //   const updatedRowData = rowData.filter((_, index) => index !== rowIndex);
-  //   setRowData(updatedRowData);
-  // };
-
-  // const deleteColumn = {
-  //   headerName: '',
-  //   field: 'delete',
-  //   cellRendererFramework: (params: any) => (
-  //     <button onClick={() => handleDelete(params.node)}>Delete</button>
-  //   ),
-  //   filter: false,
-  //   sortable: false,
-  //   width: 100,
-  // };
-
-  const testColumn = {
-    headerName: 'Test',
-    field: 'test',
-    valueGetter: () => 'Test Value',
-  };
-  const DeleteButton = ({ onDelete }) => {
-    return <button onClick={onDelete}>Delete</button>;
-  };
-
   const deleteColumn = {
     headerName: '',
     field: 'delete',
-    cellRenderer: (params) => (
-      <DeleteButton onDelete={() => handleDelete(params.node)} />
+    cellRenderer: (params: { node: unknown }) => (
+      <Button onClick={() => handleDelete(params.node)} variant={'borderMagic'}>
+        Delete
+      </Button>
     ),
     filter: false,
     sortable: false,
