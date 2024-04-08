@@ -4,10 +4,11 @@ export const PrivacyPolicyContent = () => (
   <div>
     <i className="mb-4">Last updated: 2024-04-06</i>
     <p className="mt-4">
-      This Privacy Policy describes how Sheetwise ("we," "us," or "our")
-      collects, uses, and protects your personal information when you use our
-      application ("Service"). By using the Service, you agree to the collection
-      and use of information in accordance with this policy.
+      This Privacy Policy describes how Sheetwise (&quot;we,&quot;
+      &quot;us,&quot; or &quot;our&quot;) collects, uses, and protects your
+      personal information when you use our application (&quot;Service&quot;).
+      By using the Service, you agree to the collection and use of information
+      in accordance with this policy.
     </p>
     <h2 className="mt-8 mb-2 text-xl">Information Collection and Use</h2>
     <p className="mb-1">
@@ -43,8 +44,8 @@ export const PrivacyPolicyContent = () => (
       </li>
       <li>
         Google Sheets Integration: If you choose to integrate with Google
-        Sheets, your data will be managed within Google's infrastructure. We do
-        not have access to your Google Sheets data.
+        Sheets, your data will be managed within Google&apos;s infrastructure.
+        We do not have access to your Google Sheets data.
       </li>
     </ul>
     <h1 className="mt-8 mb-2 text-xl">Data Retention</h1>
