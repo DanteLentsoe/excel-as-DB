@@ -3,6 +3,7 @@ import { SparklesPreview } from './components/Templates/SparklesPreview';
 import { InfoCard } from './components/UI/info-card';
 import { FAQItem, FAQItemProps } from './components/molecules/FAQItem';
 import { Footer } from './components/molecules/Footer';
+import { PageTitle } from './components/molecules/PageTitle';
 const FAQs: Array<FAQItemProps> = [
   {
     question: 'How It Works',
@@ -23,14 +24,28 @@ const FAQs: Array<FAQItemProps> = [
 
 export default function Home() {
   return (
-    <main className="min-h-screen">
-      <SparklesPreview />
-      <div className="max-w-5xl min-h-screen mx-auto lg:px-8">
+    <main className="min-h-screen overflow-auto">
+      <section className="min-h-screen flex flex-col justify-center items-center">
+        <SparklesPreview />
+      </section>
+      <section className="min-h-screen flex flex-col md:px-8 lg:px-48">
+        <PageTitle
+          title={'Using SheetWise'}
+          subtitle={'How to use SheetWise'}
+          className="mt-24"
+        />
         {FAQs.map(({ answer, question }) => {
           return <FAQItem key={question} question={question} answer={answer} />;
         })}
+      </section>
+      <section id="about" className="min-h-screen lg:px-48">
+        <PageTitle
+          title={'About SheetWise'}
+          subtitle={'Key features of found within Sheetwise'}
+          className="mt-24"
+        />
         <InfoCard items={appInfo} />
-      </div>
+      </section>
       <Footer />
     </main>
   );
