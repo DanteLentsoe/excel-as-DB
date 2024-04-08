@@ -2,6 +2,7 @@ import { appInfo } from '@/contants';
 import { SparklesPreview } from './components/Templates/SparklesPreview';
 import { InfoCard } from './components/UI/info-card';
 import { FAQItem, FAQItemProps } from './components/molecules/FAQItem';
+import { Footer } from './components/molecules/Footer';
 const FAQs: Array<FAQItemProps> = [
   {
     question: 'How It Works',
@@ -22,14 +23,15 @@ const FAQs: Array<FAQItemProps> = [
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
+    <main className="min-h-screen">
       <SparklesPreview />
-      <div className="max-w-5xl mx-auto lg:px-8">
+      <div className="max-w-5xl min-h-screen mx-auto lg:px-8">
         {FAQs.map(({ answer, question }) => {
           return <FAQItem key={question} question={question} answer={answer} />;
         })}
         <InfoCard items={appInfo} />
       </div>
+      <Footer />
     </main>
   );
 }
