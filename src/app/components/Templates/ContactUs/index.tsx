@@ -2,7 +2,7 @@
 
 import { EmailSVG } from '@/icons';
 import Link from 'next/link';
-import React, { FC } from 'react';
+import React, { FC, useState } from 'react';
 import { Button } from '../../atoms/Button';
 import {
   FieldErrors,
@@ -31,6 +31,8 @@ export type ContactTextAreaProps = {
 };
 import { SiGoogleforms } from 'react-icons/si';
 export const Contact = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [responseMessage, setResponseMessage] = useState('');
   const {
     register,
     handleSubmit,
@@ -47,9 +49,13 @@ export const Contact = () => {
       .then(
         (response) => {
           console.log('SUCCESS!', response.status, response.text);
+          setIsLoading(false);
+          setResponseMessage('Message sent successfully!');
         },
         (err) => {
           console.log('FAILED...', err);
+          setIsLoading(false);
+          setResponseMessage('Failed to send message. Please try again later.');
         }
       );
   };
@@ -114,12 +120,23 @@ export const Contact = () => {
               </div>
             </div>
             <div className="w-full px-4 lg:w-1/2 xl:w-5/12">
+              {responseMessage && (
+                <div
+                  className={`mt-4 text-center ${
+                    responseMessage.startsWith('Failed')
+                      ? 'text-red-500'
+                      : 'text-green-500'
+                  }`}
+                >
+                  {responseMessage}
+                </div>
+              )}
               <div className="relative rounded-lg  p-8 shadow-lg border border-gray-800 bg-black shadow-input sm:p-12">
                 <form onSubmit={handleSubmit(onSubmit)}>
                   <ContactInputBox
                     register={register}
                     type="text"
-                    name="name"
+                    name="from_name"
                     placeholder="Your Name"
                     errors={errors}
                     required
@@ -127,7 +144,7 @@ export const Contact = () => {
                   <ContactInputBox
                     register={register}
                     type="text"
-                    name="email"
+                    name="user_email"
                     placeholder="Your Email"
                     errors={errors}
                     required
@@ -144,7 +161,7 @@ export const Contact = () => {
                     register={register}
                     row="6"
                     placeholder="Your Message"
-                    name="details"
+                    name="message"
                     defaultValue=""
                     errors={errors}
                     required
@@ -152,10 +169,11 @@ export const Contact = () => {
                   <div>
                     <Button
                       variant={'shimmer'}
+                      disabled={isLoading}
                       type="submit"
                       className="w-full rounded border p-3 transition"
                     >
-                      Send Message
+                      {isLoading ? 'Sending...' : 'Send Message'}
                     </Button>
                   </div>
                 </form>

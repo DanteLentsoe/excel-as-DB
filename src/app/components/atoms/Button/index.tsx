@@ -7,6 +7,7 @@ export type ButtonProps = {
   className?: string;
   onClick?: () => void;
   type?: 'button' | 'reset' | 'submit';
+  disabled?: boolean;
 };
 
 export const Button: React.FC<ButtonProps> = ({
@@ -14,6 +15,7 @@ export const Button: React.FC<ButtonProps> = ({
   children,
   className,
   onClick,
+  disabled = false,
   type = 'button',
 }) => {
   switch (variant) {
@@ -21,6 +23,7 @@ export const Button: React.FC<ButtonProps> = ({
       return (
         <button
           onClick={onClick}
+          disabled={disabled}
           type={type}
           className={classNames(
             'bg-slate-800 no-underline group cursor-pointer relative shadow-2xl shadow-zinc-900 rounded-full p-px text-xs font-semibold leading-6  text-white inline-block',
@@ -40,6 +43,7 @@ export const Button: React.FC<ButtonProps> = ({
       return (
         <button
           onClick={onClick}
+          disabled={disabled}
           type={type}
           className={classNames(
             'relative inline-flex h-12 overflow-hidden rounded-full p-[1px] focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50',
@@ -56,6 +60,7 @@ export const Button: React.FC<ButtonProps> = ({
       return (
         <button
           onClick={onClick}
+          disabled={disabled}
           type={type}
           className={classNames(
             'px-8 py-0.5  border-2 border-black dark:border-white uppercase bg-white text-neutarl-700 transition duration-200 text-sm shadow-[1px_1px_rgba(0,0,0),2px_2px_rgba(0,0,0),3px_3px_rgba(0,0,0),4px_4px_rgba(0,0,0),5px_5px_0px_0px_rgba(0,0,0)] dark:shadow-[1px_1px_rgba(255,255,255),2px_2px_rgba(255,255,255),3px_3px_rgba(255,255,255),4px_4px_rgba(255,255,255),5px_5px_0px_0px_rgba(255,255,255)]',
@@ -70,6 +75,7 @@ export const Button: React.FC<ButtonProps> = ({
       return (
         <button
           onClick={onClick}
+          disabled={disabled}
           type={type}
           className={classNames(
             'inline-flex h-12 animate-shimmer items-center justify-center rounded-md border border-slate-800 bg-[linear-gradient(110deg,#000103,45%,#1e2631,55%,#000103)] bg-[length:200%_100%] px-6 font-medium text-slate-400 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50',
@@ -81,6 +87,6 @@ export const Button: React.FC<ButtonProps> = ({
         </button>
       );
     default:
-      return <button>{children}</button>;
+      return <button disabled={disabled}>{children}</button>;
   }
 };
