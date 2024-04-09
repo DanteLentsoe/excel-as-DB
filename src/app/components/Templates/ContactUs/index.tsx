@@ -70,11 +70,14 @@ export const Contact = () => {
                   </div>
                   <div className="w-full">
                     <h4 className="mb-1 text-xl font-bold text-dark dark:text-white">
-                      Phone Number
+                      Report Bug/Feedback
                     </h4>
-                    <p className="text-base text-body-color dark:text-dark-6">
-                      (+62)81 414 257 9980
-                    </p>
+                    <Link
+                      href={'https://forms.gle/hRi8EKtjGX8AZW127'}
+                      className="text-base text-body-color dark:text-dark-6"
+                    >
+                      Google Form
+                    </Link>
                   </div>
                 </div>
 
@@ -86,9 +89,12 @@ export const Contact = () => {
                     <h4 className="mb-1 text-xl font-bold text-dark dark:text-white">
                       Email Address
                     </h4>
-                    <p className="text-base text-body-color dark:text-dark-6">
-                      info@yourdomain.com
-                    </p>
+                    <Link
+                      href={'mailto:dllentsoe@gmail.com'}
+                      className="text-base text-body-color dark:text-dark-6"
+                    >
+                      dllentsoe@gmail
+                    </Link>
                   </div>
                 </div>
               </div>
