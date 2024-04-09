@@ -38,7 +38,12 @@ export const Contact = () => {
   } = useForm();
   const onSubmit = (data: Record<string, unknown> | undefined) => {
     emailjs
-      .send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', data, 'YOUR_USER_ID')
+      .send(
+        String(process.env?.EMAIL_JS_SERVICE_ID),
+        String(process.env?.EMAIL_JS_TEMPLATE_ID),
+        data,
+        String(process.env?.EMAIL_JS_USER_ID)
+      )
       .then(
         (response) => {
           console.log('SUCCESS!', response.status, response.text);
