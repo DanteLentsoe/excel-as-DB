@@ -71,17 +71,18 @@ export const Contact = () => {
                   I value your feedback and are here to assist you. Whether you
                   have suggestions to improve Sheetwise, need help with using
                   the application, are interested in collaborating with us, or
-                  want to report a bug, we're eager to hear from you. You can
-                  easily reach out to me through my Google Form for structured
-                  feedback and bug reports, or feel free to email me directly at
+                  want to report a bug, we&apos;re eager to hear from you. You
+                  can easily reach out to me through my Google Form for
+                  structured feedback and bug reports, or feel free to email me
+                  directly at
                   <Link
                     href={'mailto:dllentsoe@gmail'}
                     className="text-emerald-600"
                   >
                     {' dllentsoe@gmail '}
                   </Link>
-                  for any inquiries or work proposals. Let's work together to
-                  make Sheetwise even better!
+                  for any inquiries or work proposals. Let&apos;s work together
+                  to make Sheetwise even better!
                 </p>
 
                 <div className="mb-8 flex w-full max-w-[370px]">
