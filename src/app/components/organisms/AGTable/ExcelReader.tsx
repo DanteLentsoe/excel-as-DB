@@ -14,7 +14,7 @@ import { Button } from '../../atoms/Button';
 import { Modal } from '../../molecules/Modal';
 import { useModalStore } from '@/store';
 
-type ColumnDef = {
+export type ColumnDef = {
   field: string;
   headerName: string;
   editable?: boolean;
