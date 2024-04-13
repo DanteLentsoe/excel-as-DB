@@ -226,6 +226,8 @@ export const ExcelReader: React.FC = () => {
     setRowData(updatedRowData);
   };
 
+  const filteredCols = columnDefs.filter((colDef) => colDef.headerName !== '');
+
   return (
     <div>
       <NavigationBar handleFile={handleFile} />
@@ -280,47 +282,46 @@ export const ExcelReader: React.FC = () => {
         title={worksheetName || 'Base Form'}
         className="w-96 h-96"
       >
-        <form
-          onSubmit={handleAddRow}
-          className="mt-4 grid grid-cols-2 gap-4 justify-center items-center"
-        >
-          {columnDefs.map((colDef) => {
-            return colDef.type === 'date' ? (
-              <DatePicker
-                key={colDef.field}
-                selected={newRowData[colDef.field]}
-                onChange={(date) =>
-                  handleInputChange(
-                    colDef.field,
-                    date ? date.toISOString().split('T')[0] : ''
-                  )
-                }
-                className="px-3 py-2 text-zinc-950 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-              />
-            ) : (
-              <input
-                key={colDef.field}
-                type={colDef.type === 'number' ? 'number' : 'text'}
-                placeholder={colDef.headerName}
-                value={newRowData[colDef.field] || ''}
-                onChange={(e) =>
-                  handleInputChange(colDef.field, e.target.value)
-                }
-                className="px-3 py-2 text-white bg-gray-800 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-              />
-            );
-          })}
+        <form onSubmit={handleAddRow} className="">
+          <div className="mt-4 grid grid-cols-2 gap-4 justify-center items-center mb-4">
+            {filteredCols.map((colDef) => {
+              return colDef.type === 'date' ? (
+                <DatePicker
+                  key={colDef.field}
+                  selected={newRowData[colDef.field]}
+                  onChange={(date) =>
+                    handleInputChange(
+                      colDef.field,
+                      date ? date.toISOString().split('T')[0] : ''
+                    )
+                  }
+                  className="px-3 py-2 text-zinc-950 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                />
+              ) : (
+                <input
+                  key={colDef.field}
+                  type={colDef.type === 'number' ? 'number' : 'text'}
+                  placeholder={colDef.headerName}
+                  value={newRowData[colDef.field] || ''}
+                  onChange={(e) =>
+                    handleInputChange(colDef.field, e.target.value)
+                  }
+                  className="px-3 py-2 text-white bg-gray-800 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                />
+              );
+            })}
+          </div>
           {/* Grouping buttons together */}
-          <div className="mt-2 flex flex-row gap-52">
+          <div className="mt-2 inline-flex gap-4 w-full">
             <Button
-              className="text-white font-semibold w-64"
+              className="text-white font-semibold whitespace-nowrap flex-1"
               variant={'shimmer'}
               type="submit"
             >
               Add Row
             </Button>
             <Button
-              className="text-white font-semibold w-full"
+              className="text-white font-semibold whitespace-nowrap flex-1"
               variant={'shimmer'}
               onClick={() => closeModal('base-form')}
             >
