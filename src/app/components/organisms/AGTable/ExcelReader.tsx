@@ -8,7 +8,12 @@ import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import 'ag-grid-community/styles/ag-theme-quartz.css';
 import 'react-datepicker/dist/react-datepicker.css';
-import { CellValueChangedEvent } from 'ag-grid-community';
+import {
+  CellValueChangedEvent,
+  RowNode,
+  ICellRendererParams,
+  IRowNode,
+} from 'ag-grid-community';
 import { NavigationBar } from '../NavigationBar';
 import { Button } from '../../atoms/Button';
 import { Modal } from '../../molecules/Modal';
@@ -23,9 +28,14 @@ export type ColumnDef = {
   cellRenderer?: React.JSX.Element;
 };
 
+type RowDataType = Array<{ [key: string]: any }>;
+
 export const ExcelReader: React.FC = () => {
-  const [items, setItems] = useState<any[]>([]);
-  const [rowData, setRowData] = useState<Array<{ [key: string]: any }>>([]);
+  const [rowData, setRowData] = useState<RowDataType>([]);
+  const rowDataRef = useRef<RowDataType | null>(null);
+
+  rowDataRef.current = rowData;
+
   const [selectedRowNodes, setSelectedRowNodes] = useState<any[]>([]);
   const [newRowData, setNewRowData] = useState<{ [key: string]: any }>({});
   const onSelectionChanged = () => {
@@ -37,7 +47,6 @@ export const ExcelReader: React.FC = () => {
   );
 
   const [gridApi, setGridApi] = useState<any | null>(null);
-  const [searchText, setSearchText] = useState('');
   const [columnDefs, setColumnDefs] = useState<ColumnDef[]>([]);
   const gridRef = useRef<AgGridReact>(null);
   const { openModal, closeModal } = useModalStore((state) => state);
@@ -68,6 +77,7 @@ export const ExcelReader: React.FC = () => {
         });
         return rowData;
       });
+
       // Save to local storage
       localStorage.setItem(
         'excel_sheetwise_excelData',
@@ -88,7 +98,6 @@ export const ExcelReader: React.FC = () => {
     try {
       const updatedRowData = [...rowData, newRowData];
 
-      console.log('updatedRowData ', updatedRowData);
       setRowData(updatedRowData);
       setNewRowData({}); // Reset form data
 
@@ -110,11 +119,6 @@ export const ExcelReader: React.FC = () => {
     setNewRowData(updatedData);
   };
 
-  const deleteCellRenderer = (params: any) => {
-    return (
-      <button onClick={() => handleDelete(params.node.rowIndex)}>Delete</button>
-    );
-  };
   const onCellValueChanged = (event: CellValueChangedEvent) => {
     if (event.rowIndex != null) {
       try {
@@ -129,6 +133,7 @@ export const ExcelReader: React.FC = () => {
   };
 
   useEffect(() => {
+    // gets locally stored excel data
     const savedData = localStorage.getItem('excel_sheetwise_excelData');
     if (savedData) {
       try {
@@ -142,20 +147,19 @@ export const ExcelReader: React.FC = () => {
     }
   }, []);
 
-  const handleEdit = (index: number, key: string, newValue: string) => {
-    const updatedItems = [...items];
-    updatedItems[index] = { ...updatedItems[index], [key]: newValue };
-    setItems(updatedItems);
-  };
-
   const deleteColumn = {
     headerName: '',
     field: 'delete',
-    cellRenderer: (params: { node: unknown }) => (
-      <Button onClick={() => handleDelete(params.node)} variant={'borderMagic'}>
-        Delete
-      </Button>
-    ),
+    cellRenderer: (params: ICellRendererParams) => {
+      return (
+        <Button
+          onClick={() => handleDelete(params.data)}
+          variant={'borderMagic'}
+        >
+          Delete
+        </Button>
+      );
+    },
     filter: false,
     sortable: false,
     width: 100,
@@ -163,11 +167,6 @@ export const ExcelReader: React.FC = () => {
 
   const onGridReady = (params: { api: any }) => {
     setGridApi(params.api);
-  };
-
-  const onFilterTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchText(event.target.value);
-    gridApi?.setQuickFilter(event.target.value);
   };
 
   const saveChanges = () => {
@@ -191,23 +190,33 @@ export const ExcelReader: React.FC = () => {
     }
   };
 
-  const handleDelete = (node: any) => {
-    const selectedRowNode = node;
-    const selectedRowIndex = selectedRowNode.rowIndex;
-    console.log('Deleting row at index:', selectedRowIndex);
-
-    // Update rowData state to remove the deleted row
-    const updatedRowData = rowData.filter(
-      (_, index) => index !== selectedRowIndex
-    );
-    setRowData(updatedRowData);
+  const confirmDelete = (node: RowNode) => {
+    const confirm = window.confirm('Are you sure you want to delete this row?');
+    if (confirm) {
+      handleDelete(node);
+    }
   };
-  const defaultColDef = useMemo(() => {
-    return {
-      filter: 'agTextColumnFilter',
-      floatingFilter: true,
-    };
-  }, []);
+
+  const handleDelete = (nodeData: IRowNode) => {
+    const delData = JSON.stringify(nodeData);
+    try {
+      const updatedRowData = rowDataRef.current?.filter((row, idx) => {
+        return JSON.stringify(row) !== delData;
+      });
+
+      // Update rowData state to remove the deleted row
+
+      setRowData(updatedRowData as Array<RowDataType>);
+
+      // Update local storage to reflect the change
+      localStorage.setItem(
+        'excel_sheetwise_excelData',
+        JSON.stringify({ columns: columnDefs, rows: updatedRowData })
+      );
+    } catch (error) {
+      console.error('Error deleting row ', error);
+    }
+  };
 
   const handleBulkDelete = () => {
     const selectedIds = selectedRowNodes.map((node) => node.id);
