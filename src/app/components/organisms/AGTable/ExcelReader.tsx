@@ -70,7 +70,7 @@ export const ExcelReader: React.FC = () => {
       });
       // Save to local storage
       localStorage.setItem(
-        'excelData',
+        'excel_sheetwise_excelData',
         JSON.stringify({
           columns: [...headers, deleteColumn],
           rows: rows,
@@ -84,13 +84,23 @@ export const ExcelReader: React.FC = () => {
 
   const handleAddRow = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const updatedRowData = [...rowData, newRowData];
-    setRowData(updatedRowData);
-    setNewRowData({}); // Reset form data
 
-    // Update local storage
-    const updatedData = { columns: columnDefs, rows: updatedRowData };
-    localStorage.setItem('excelData', JSON.stringify(updatedData));
+    try {
+      const updatedRowData = [...rowData, newRowData];
+
+      console.log('updatedRowData ', updatedRowData);
+      setRowData(updatedRowData);
+      setNewRowData({}); // Reset form data
+
+      // Update local storage
+      const updatedData = { columns: columnDefs, rows: updatedRowData };
+      localStorage.setItem(
+        'excel_sheetwise_excelData',
+        JSON.stringify(updatedData)
+      );
+    } catch (error) {
+      console.error('Error Adding Data ', error);
+    }
   };
 
   const handleInputChange = (field: string, value: string) => {
@@ -107,20 +117,28 @@ export const ExcelReader: React.FC = () => {
   };
   const onCellValueChanged = (event: CellValueChangedEvent) => {
     if (event.rowIndex != null) {
-      // Ensure rowIndex is not null
-      const updatedRowData = [...rowData];
-      updatedRowData[event.rowIndex] = event.data;
-      setRowData(updatedRowData);
+      try {
+        // Ensure rowIndex is not null
+        const updatedRowData = [...rowData];
+        updatedRowData[event.rowIndex] = event.data;
+        setRowData(updatedRowData);
+      } catch (error) {
+        console.error('error updating cell: ', error);
+      }
     }
   };
 
   useEffect(() => {
-    const savedData = localStorage.getItem('excelData');
+    const savedData = localStorage.getItem('excel_sheetwise_excelData');
     if (savedData) {
-      const { columns, rows, sheetName } = JSON.parse(savedData);
-      setColumnDefs([...columns, deleteColumn]);
-      setRowData(rows);
-      setWorksheetName(sheetName);
+      try {
+        const { columns, rows, sheetName } = JSON.parse(savedData);
+        setColumnDefs([...columns, deleteColumn]);
+        setRowData(rows);
+        setWorksheetName(sheetName);
+      } catch (error) {
+        console.error('error setting excel data ', error);
+      }
     }
   }, []);
 
@@ -153,20 +171,24 @@ export const ExcelReader: React.FC = () => {
   };
 
   const saveChanges = () => {
-    // Create a new worksheet with headers
-    const headers = columnDefs.map((col) => col?.headerName);
-    const worksheetData = [
-      headers,
-      ...rowData.map((row) => Object.values(row)),
-    ];
+    try {
+      // Create a new worksheet with headers
+      const headers = columnDefs.map((col) => col?.headerName);
+      const worksheetData = [
+        headers,
+        ...rowData.map((row) => Object.values(row)),
+      ];
 
-    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+      const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
 
-    const newWorkbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(newWorkbook, worksheet, 'Sheet1');
+      const newWorkbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(newWorkbook, worksheet, 'Sheet1');
 
-    // Create a new Excel file
-    XLSX.writeFile(newWorkbook, 'updated_file.xlsx');
+      // Create a new Excel file
+      XLSX.writeFile(newWorkbook, 'updated_file.xlsx');
+    } catch (error) {
+      console.error('save excel', error);
+    }
   };
 
   const handleDelete = (node: any) => {
@@ -284,6 +306,7 @@ export const ExcelReader: React.FC = () => {
             <Button
               className="text-white font-semibold w-64"
               variant={'shimmer'}
+              type="submit"
             >
               Add Row
             </Button>
