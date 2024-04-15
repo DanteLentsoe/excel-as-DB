@@ -3,6 +3,7 @@ import { Disclosure, Menu } from '@headlessui/react';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { UserButton } from '@clerk/nextjs';
+import { usePathname } from 'next/navigation';
 type NavigationItem = {
   name: string;
   href: string;
@@ -10,8 +11,7 @@ type NavigationItem = {
 };
 
 const navigation: NavigationItem[] = [
-  //   { name: 'Dashboard', href: '#', current: true },
-  //   { name: 'Team', href: '#', current: false },
+  { name: 'Dashboard', href: '/editor', current: false },
   { name: 'Sheets', href: '#', current: false },
   { name: 'Settings', href: '#', current: false },
 ];
@@ -25,6 +25,8 @@ type NavigationProps = {
 };
 
 export const NavigationBar: FC<NavigationProps> = ({ handleFile }) => {
+  const currentPathName = usePathname();
+
   return (
     <Disclosure
       as="nav"
@@ -58,19 +60,19 @@ export const NavigationBar: FC<NavigationProps> = ({ handleFile }) => {
                 </div>
                 <div className="hidden sm:ml-6 sm:block">
                   <div className="flex space-x-4">
-                    {navigation.map((item) => (
+                    {navigation.map(({ current, href, name }) => (
                       <a
-                        key={item.name}
-                        href={item.href}
+                        key={name}
+                        href={href}
                         className={classNames(
-                          item.current
+                          currentPathName === href
                             ? 'bg-gray-900 text-white'
                             : 'text-gray-300 hover:bg-gray-700 hover:text-white',
                           'rounded-md px-3 py-2 text-sm font-medium'
                         )}
-                        aria-current={item.current ? 'page' : undefined}
+                        aria-current={current ? 'page' : undefined}
                       >
-                        {item.name}
+                        {name}
                       </a>
                     ))}
                   </div>
