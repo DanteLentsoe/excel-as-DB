@@ -19,6 +19,7 @@ import { Button } from '../../atoms/Button';
 import { Modal } from '../../molecules/Modal';
 import { useModalStore } from '@/store';
 import { LocalStorageKeys } from '@/contants';
+import { Footer } from '../../molecules/Footer';
 
 export type ColumnDef = {
   field: string;
@@ -332,6 +333,7 @@ export const ExcelReader: React.FC = () => {
           </div>
         </form>
       </Modal>
+      <Footer />
     </div>
   );
 };
