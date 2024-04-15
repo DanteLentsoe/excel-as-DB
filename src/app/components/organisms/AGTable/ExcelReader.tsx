@@ -18,6 +18,7 @@ import { NavigationBar } from '../NavigationBar';
 import { Button } from '../../atoms/Button';
 import { Modal } from '../../molecules/Modal';
 import { useModalStore } from '@/store';
+import { LocalStorageKeys } from '@/contants';
 
 export type ColumnDef = {
   field: string;
@@ -80,7 +81,7 @@ export const ExcelReader: React.FC = () => {
 
       // Save to local storage
       localStorage.setItem(
-        'excel_sheetwise_excelData',
+        LocalStorageKeys.ExcelSheetwiseData,
         JSON.stringify({
           columns: [...headers, deleteColumn],
           rows: rows,
@@ -104,7 +105,7 @@ export const ExcelReader: React.FC = () => {
       // Update local storage
       const updatedData = { columns: columnDefs, rows: updatedRowData };
       localStorage.setItem(
-        'excel_sheetwise_excelData',
+        LocalStorageKeys.ExcelSheetwiseData,
         JSON.stringify(updatedData)
       );
     } catch (error) {
@@ -154,6 +155,7 @@ export const ExcelReader: React.FC = () => {
       return (
         <Button
           onClick={() => handleDelete(params.data)}
+          className="h-8 w-16"
           variant={'borderMagic'}
         >
           Delete
@@ -210,7 +212,7 @@ export const ExcelReader: React.FC = () => {
 
       // Update local storage to reflect the change
       localStorage.setItem(
-        'excel_sheetwise_excelData',
+        LocalStorageKeys.ExcelSheetwiseData,
         JSON.stringify({ columns: columnDefs, rows: updatedRowData })
       );
     } catch (error) {
