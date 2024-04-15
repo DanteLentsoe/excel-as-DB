@@ -43,7 +43,10 @@ export default function Home() {
       <section className="min-h-screen flex flex-col justify-center items-center">
         <SparklesPreview />
       </section>
-      <section className="min-h-screen flex flex-col md:px-8 lg:px-48">
+      <section
+        className="min-h-screen flex flex-col md:px-8 lg:px-48"
+        id="learn-more"
+      >
         <PageTitle
           title={'Using SheetWise'}
           subtitle={'How to use SheetWise'}
