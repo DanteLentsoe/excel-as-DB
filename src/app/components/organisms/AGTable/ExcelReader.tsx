@@ -1,6 +1,14 @@
 'use client';
 
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  ChangeEvent,
+  FC,
+  FormEvent,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import * as XLSX from 'xlsx';
 import DatePicker from 'react-datepicker';
 import { AgGridReact } from 'ag-grid-react';
@@ -20,6 +28,7 @@ import { Modal } from '../../molecules/Modal';
 import { useModalStore } from '@/store';
 import { LocalStorageKeys } from '@/contants';
 import { Footer } from '../../molecules/Footer';
+import { FormInput } from '../FormBuilder';
 
 export type ColumnDef = {
   field: string;
@@ -27,16 +36,28 @@ export type ColumnDef = {
   editable?: boolean;
   filter?: boolean;
   type?: string;
-  cellRenderer?: React.JSX.Element;
+  cellRenderer?: JSX.Element;
 };
 
 type RowDataType = Array<{ [key: string]: any }>;
 
-export const ExcelReader: React.FC = () => {
+export const ExcelReader: FC = () => {
   const [rowData, setRowData] = useState<RowDataType>([]);
   const rowDataRef = useRef<RowDataType | null>(null);
-
+  const [useCustomForm, setUseCustomForm] = useState(false);
+  const [config, setConfig] = useState('');
   rowDataRef.current = rowData;
+
+  console.log('useCustomForm ', useCustomForm);
+  console.log('config ', config);
+  useEffect(() => {
+    const savedConfig = localStorage.getItem('sheetwise_formConfig');
+    if (savedConfig) {
+      setConfig(savedConfig);
+    }
+
+    console.log('SAVED CONFIG MOUNTING...');
+  }, []);
 
   const [selectedRowNodes, setSelectedRowNodes] = useState<any[]>([]);
   const [newRowData, setNewRowData] = useState<{ [key: string]: any }>({});
@@ -48,11 +69,19 @@ export const ExcelReader: React.FC = () => {
     undefined
   );
 
+  let inputs: FormInput[] = [];
+
+  try {
+    inputs = JSON.parse(config)?.inputs || [];
+  } catch (error) {
+    console.error('Invalid JSON:', error);
+  }
+
   const [gridApi, setGridApi] = useState<any | null>(null);
   const [columnDefs, setColumnDefs] = useState<ColumnDef[]>([]);
   const gridRef = useRef<AgGridReact>(null);
   const { openModal, closeModal } = useModalStore((state) => state);
-  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFile = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files ? e.target.files[0] : null;
     if (!file) return;
 
@@ -94,7 +123,7 @@ export const ExcelReader: React.FC = () => {
     }
   };
 
-  const handleAddRow = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleAddRow = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     try {
@@ -115,9 +144,10 @@ export const ExcelReader: React.FC = () => {
   };
 
   const handleInputChange = (field: string, value: string) => {
+    console.log('field ', field);
     const updatedData = { ...newRowData, [field]: value };
 
-    console.log('Updated Row Data:', updatedData);
+    // console.log('Updated Row Data:', updatedData);
     setNewRowData(updatedData);
   };
 
@@ -136,7 +166,7 @@ export const ExcelReader: React.FC = () => {
 
   useEffect(() => {
     // gets locally stored excel data
-    const savedData = localStorage.getItem('excel_sheetwise_excelData');
+    const savedData = localStorage.getItem(LocalStorageKeys.ExcelSheetwiseData);
     if (savedData) {
       try {
         const { columns, rows, sheetName } = JSON.parse(savedData);
@@ -231,6 +261,96 @@ export const ExcelReader: React.FC = () => {
 
   const filteredCols = columnDefs.filter((colDef) => colDef.headerName !== '');
 
+  const loadFormConfiguration = () => {
+    // Assume you have a function that retrieves the saved form configuration
+    const configString = localStorage.getItem('sheetwise_formConfig'); // Retrieve configuration from local storage
+    if (configString) {
+      const config = JSON.parse(configString);
+      const inputs = config.inputs || [];
+      const newColumnDefs = inputs.map(
+        (input: { label: any; type: string }, index: any) => ({
+          headerName: input.label,
+          field: `field${index}`,
+          editable: true,
+          filter: true,
+          type: input.type === 'date' ? 'date' : 'text', // Map form input types to grid column types as necessary
+        })
+      );
+
+      setColumnDefs([...newColumnDefs, deleteColumn]); // Add other columns like a delete button if necessary
+    }
+  };
+
+  useEffect(() => {
+    loadFormConfiguration(); // Load configuration on component mount
+  }, []);
+
+  // Function to generate column definitions from form inputs
+  const generateColumnDefsFromInputs = () => {
+    try {
+      const inputs = JSON.parse(config)?.inputs || [];
+      return inputs.map(
+        (input: { label: string; type: string }, index: number) => ({
+          headerName: input.label,
+          field: `field${index}`,
+          editable: true,
+          filter: true,
+          type: input.type === 'date' ? 'date' : 'text', // Assuming you want to handle date specially
+        })
+      );
+    } catch (error) {
+      console.error('Error parsing inputs from config:', error);
+      return [];
+    }
+  };
+
+  const handleUseCustomForm = () => {
+    // This toggles the use of the custom form and updates the column definitions
+    const newColumnDefs = generateColumnDefsFromInputs();
+    setColumnDefs(newColumnDefs);
+    setUseCustomForm(true);
+
+    // setRowData([]);
+  };
+
+  // You may need to reset to default columns if you toggle off the custom form
+  const handleUseDefaultForm = () => {
+    // Reset to some predefined or initial state of columns if necessary
+    // loadInitialColumnDefs(); // You would need to define how to load these initial columns
+    setUseCustomForm(false);
+  };
+
+  const renderFormFields = () => {
+    return filteredCols.map((colDef) => {
+      if (colDef.type === 'date') {
+        return (
+          <DatePicker
+            key={colDef.field}
+            selected={newRowData[colDef.field]}
+            onChange={(date) =>
+              handleInputChange(
+                colDef.field,
+                date ? date.toISOString().split('T')[0] : ''
+              )
+            }
+            className="input-class"
+          />
+        );
+      } else {
+        return (
+          <input
+            key={colDef.field}
+            type={colDef.type === 'number' ? 'number' : 'text'}
+            placeholder={colDef.headerName}
+            value={newRowData[colDef.field] || ''}
+            onChange={(e) => handleInputChange(colDef.field, e.target.value)}
+            className="input-class"
+          />
+        );
+      }
+    });
+  };
+
   return (
     <div>
       <NavigationBar handleFile={handleFile} />
@@ -244,6 +364,29 @@ export const ExcelReader: React.FC = () => {
           variant={'borderMagic'}
         >
           Add
+        </Button>
+        <Button
+          onClick={saveChanges}
+          className="w-32 h-8 text-center"
+          variant={'borderMagic'}
+        >
+          Save Changes
+        </Button>
+      </div>
+      <div className="flex justify-between my-4 mx-8 mt-8">
+        <Button
+          onClick={handleUseCustomForm}
+          className="w-32 h-8 text-center"
+          variant={'borderMagic'}
+        >
+          Use Custom Form
+        </Button>
+        <Button
+          onClick={handleUseDefaultForm}
+          className="w-32 h-8 text-center"
+          variant={'borderMagic'}
+        >
+          Use Default Form
         </Button>
         <Button
           onClick={saveChanges}
@@ -280,6 +423,76 @@ export const ExcelReader: React.FC = () => {
         />
       </div>
 
+      <form
+        onSubmit={handleAddRow}
+        style={{
+          padding: '20px',
+          fontFamily: 'Arial, sans-serif',
+          color: 'whitesmoke',
+        }}
+      >
+        {inputs.map((input) => {
+          console.log(' input ==== ', input);
+
+          return (
+            <div key={input.id} style={{ margin: '10px 0' }}>
+              <label style={{ display: 'block', marginBottom: '5px' }}>
+                {input.label}
+                {input.type === 'select' ? (
+                  <select
+                    style={{
+                      marginLeft: '10px',
+                      padding: '5px',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {input.options?.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    type={input.type}
+                    placeholder={input.placeholder}
+                    required={input.required}
+                    className=" text-slate-950"
+                    onChange={(e) =>
+                      handleInputChange(
+                        `field${inputs.indexOf(input)}`,
+                        e.target.value
+                      )
+                    }
+                    style={{
+                      marginLeft: '10px',
+                      padding: '5px',
+                      cursor: 'text',
+                    }}
+                  />
+                )}
+              </label>
+            </div>
+          );
+        })}
+        <div className="mt-2 inline-flex gap-4 w-full">
+          <Button
+            className="text-white font-semibold whitespace-nowrap flex-1"
+            variant={'shimmer'}
+            type="submit"
+          >
+            Add Row
+          </Button>
+          <Button
+            className="text-white font-semibold whitespace-nowrap flex-1"
+            variant={'shimmer'}
+            onClick={() => closeModal('base-form')}
+          >
+            Close
+          </Button>
+        </div>
+      </form>
+
       <Modal
         id={'base-form'}
         title={worksheetName || 'Base Form'}
@@ -288,6 +501,7 @@ export const ExcelReader: React.FC = () => {
         <form onSubmit={handleAddRow} className="">
           <div className="mt-4 grid grid-cols-2 gap-4 justify-center items-center mb-4">
             {filteredCols.map((colDef) => {
+              console.log('filteredCols ', filteredCols);
               return colDef.type === 'date' ? (
                 <DatePicker
                   key={colDef.field}

@@ -13,7 +13,7 @@ type NavigationItem = {
 const navigation: NavigationItem[] = [
   { name: 'Dashboard', href: '/editor', current: false },
   { name: 'Sheets Analytics', href: '/sheet-stats', current: false },
-  { name: 'Settings', href: '#', current: false },
+  { name: 'Settings', href: '/settings', current: false },
 ];
 
 const classNames = (...classes: (string | boolean)[]): string => {
