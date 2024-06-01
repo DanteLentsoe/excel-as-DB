@@ -6,6 +6,15 @@ const nextConfig = {
     EMAIL_JS_USER_ID: process.env.EMAIL_JS_USER_ID,
     CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,
   },
+  webpack(config) {
+    config.module.rules.push({
+      test: /\.svg$/,
+      issuer: /\.[jt]sx?$/,
+      use: ["@svgr/webpack"],
+    });
+
+    return config;
+  },
 };
 
 export default nextConfig;
