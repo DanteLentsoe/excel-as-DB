@@ -1,22 +1,21 @@
-'use client';
+"use client";
 
-import { FC, useEffect, useState } from 'react';
-import { Footer } from '../../molecules/Footer';
-import { PageTitle } from '../../molecules/PageTitle';
-import { FormRenderer } from '../../organisms/FormRender.tsx';
-import { NavigationBar } from '../../organisms/NavigationBar';
-import { FormBuilder } from '../../organisms/FormBuilder';
-import { Button } from '../../atoms/Button';
+import { FC, useEffect, useState } from "react";
+import { Footer } from "../../molecules/Footer";
+import { PageTitle } from "../../molecules/PageTitle";
+import { FormRenderer } from "../../organisms/FormRender.tsx";
+import { NavigationBar } from "../../organisms/NavigationBar";
+import { FormBuilder } from "../../organisms/FormBuilder";
 
 type ToastPropType = {
   message: string;
-  type?: 'info' | 'success' | 'warning' | 'error';
+  type?: "info" | "success" | "warning" | "error";
   onClose: () => void;
   duration?: number;
 };
 const Toast: FC<ToastPropType> = ({
   message,
-  type = 'info',
+  type = "info",
   onClose,
   duration = 5000,
 }) => {
@@ -32,44 +31,42 @@ const Toast: FC<ToastPropType> = ({
   return (
     <div
       style={{
-        position: 'fixed',
-        bottom: '20px',
-        right: '20px',
-        padding: '20px',
-        border: '1px solid #ccc',
-        backgroundColor: type === 'error' ? '#f8d7da' : '#d4edda',
-        color: type === 'error' ? '#721c24' : '#155724',
+        position: "fixed",
+        bottom: "20px",
+        right: "20px",
+        padding: "20px",
+        border: "1px solid #ccc",
+        backgroundColor: type === "error" ? "#f8d7da" : "#d4edda",
+        color: type === "error" ? "#721c24" : "#155724",
         zIndex: 1000,
-      }}
-    >
+      }}>
       {message}
       <button
         onClick={onClose}
-        style={{ marginLeft: '10px', cursor: 'pointer' }}
-      >
+        style={{ marginLeft: "10px", cursor: "pointer" }}>
         X
       </button>
     </div>
   );
 };
 export const CustomFormBuilder = () => {
-  const [config, setConfig] = useState('');
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
+  const [config, setConfig] = useState("");
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    const savedConfig = localStorage.getItem('sheetwise_formConfig');
+    const savedConfig = localStorage.getItem("sheetwise_formConfig");
     if (savedConfig) {
       setConfig(savedConfig);
     }
 
-    console.log('SAVED CONFIG MOUNTING...');
+    console.log("SAVED CONFIG MOUNTING...");
   }, []);
 
   const clearConfig = () => {
-    setConfig('');
-    localStorage.removeItem('sheetwise_formConfig');
-    setMessage('Configuration cleared successfully.');
+    setConfig("");
+    localStorage.removeItem("sheetwise_formConfig");
+    setMessage("Configuration cleared successfully.");
   };
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -79,16 +76,16 @@ export const CustomFormBuilder = () => {
         reader.onload = (e) => {
           const text = e.target?.result;
           setConfig(text as string);
-          localStorage.setItem('sheetwise_formConfig', text as string);
-          setMessage('Configuration loaded successfully.');
+          localStorage.setItem("sheetwise_formConfig", text as string);
+          setMessage("Configuration loaded successfully.");
         };
         reader.readAsText(file);
       } catch (error) {
-        setError('Failed to load the configuration file.');
-        console.error('failed to upload JSON file ', error);
+        setError("Failed to load the configuration file.");
+        console.error("failed to upload JSON file ", error);
       }
       reader.onerror = () => {
-        setError('Error reading the file.');
+        setError("Error reading the file.");
       };
       reader.readAsText(file);
     }
@@ -96,26 +93,46 @@ export const CustomFormBuilder = () => {
 
   const saveConfigToFile = () => {
     try {
-      const blob = new Blob([config], { type: 'application/json' });
+      const blob = new Blob([config], { type: "application/json" });
       const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
-      link.download = 'form-config.json';
+      link.download = "form-config.json";
       link.click();
       URL.revokeObjectURL(url);
-      setMessage('Configuration saved to file.');
+      setMessage("Configuration saved to file.");
     } catch (error) {
-      setError('Failed to save the configuration file.');
-      console.error('failed to save JSON config file ', error);
+      setError("Failed to save the configuration file.");
+      console.error("failed to save JSON config file ", error);
     }
   };
+
+  const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    event.dataTransfer.dropEffect = "copy";
+  };
+
+  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    const fileInput = document.getElementById("fileInput") as HTMLInputElement;
+    const files = event.dataTransfer.files;
+    if (files.length) {
+      fileInput.files = files;
+      handleFileUpload({
+        target: fileInput,
+      } as React.ChangeEvent<HTMLInputElement>);
+    }
+  };
+
   return (
     <div className="min-h-screen overflow-auto">
       <NavigationBar />
       <section id="about" className="min-h-screen px-4 lg:px-8">
         <PageTitle
-          title={'Form Custom Builder'}
-          subtitle={'Build your own form for data capturing'}
+          title={"Form Custom Builder"}
+          subtitle={"Build your own form for data capturing"}
           className="lg:px-48"
         />
 
@@ -124,9 +141,13 @@ export const CustomFormBuilder = () => {
             <FormBuilder
               onSave={(config) => {
                 setConfig(config);
-                localStorage.setItem('sheetwise_formConfig', config);
-                setMessage('Configuration saved successfully.');
+                localStorage.setItem("sheetwise_formConfig", config);
+                setMessage("Configuration saved successfully.");
               }}
+              handleDrop={handleDrop}
+              handleDragOver={handleDragOver}
+              handleFileUpload={handleFileUpload}
+              clearConfig={clearConfig}
             />
           </div>
           <div className="flex-1 p-4">
@@ -134,24 +155,10 @@ export const CustomFormBuilder = () => {
           </div>
         </div>
 
-        {message && <Toast message={message} onClose={() => setMessage('')} />}
+        {message && <Toast message={message} onClose={() => setMessage("")} />}
         {error && (
-          <Toast message={error} type="error" onClose={() => setError('')} />
+          <Toast message={error} type="error" onClose={() => setError("")} />
         )}
-        <div>
-          <input
-            type="file"
-            accept="application/json"
-            onChange={handleFileUpload}
-          />
-          <Button onClick={saveConfigToFile} variant={'borderMagic'}>
-            Save Config
-          </Button>
-        </div>
-
-        <Button onClick={clearConfig} variant={'borderMagic'}>
-          Clear
-        </Button>
       </section>
       <Footer />
     </div>
