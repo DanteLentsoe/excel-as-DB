@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import React, {
   ChangeEvent,
@@ -8,27 +8,27 @@ import React, {
   useMemo,
   useRef,
   useState,
-} from 'react';
-import * as XLSX from 'xlsx';
-import DatePicker from 'react-datepicker';
-import { AgGridReact } from 'ag-grid-react';
-import 'ag-grid-community/styles/ag-grid.css';
-import 'ag-grid-community/styles/ag-theme-alpine.css';
-import 'ag-grid-community/styles/ag-theme-quartz.css';
-import 'react-datepicker/dist/react-datepicker.css';
+} from "react";
+import * as XLSX from "xlsx";
+import DatePicker from "react-datepicker";
+import { AgGridReact } from "ag-grid-react";
+import "ag-grid-community/styles/ag-grid.css";
+import "ag-grid-community/styles/ag-theme-alpine.css";
+import "ag-grid-community/styles/ag-theme-quartz.css";
+import "react-datepicker/dist/react-datepicker.css";
 import {
   CellValueChangedEvent,
   RowNode,
   ICellRendererParams,
   IRowNode,
-} from 'ag-grid-community';
-import { NavigationBar } from '../NavigationBar';
-import { Button } from '../../atoms/Button';
-import { Modal } from '../../molecules/Modal';
-import { useModalStore } from '@/store';
-import { LocalStorageKeys } from '@/contants';
-import { Footer } from '../../molecules/Footer';
-import { FormInput } from '../FormBuilder';
+} from "ag-grid-community";
+import { NavigationBar } from "../NavigationBar";
+import { Button } from "../../atoms/Button";
+import { Modal } from "../../molecules/Modal";
+import { useModalStore } from "@/store";
+import { LocalStorageKeys } from "@/contants";
+import { Footer } from "../../molecules/Footer";
+import { FormInput } from "../FormBuilder";
 
 export type ColumnDef = {
   field: string;
@@ -45,18 +45,18 @@ export const ExcelReader: FC = () => {
   const [rowData, setRowData] = useState<RowDataType>([]);
   const rowDataRef = useRef<RowDataType | null>(null);
   const [useCustomForm, setUseCustomForm] = useState(false);
-  const [config, setConfig] = useState('');
+  const [config, setConfig] = useState("");
   rowDataRef.current = rowData;
 
-  console.log('useCustomForm ', useCustomForm);
-  console.log('config ', config);
+  console.log("useCustomForm ", useCustomForm);
+  console.log("config ", config);
   useEffect(() => {
-    const savedConfig = localStorage.getItem('sheetwise_formConfig');
+    const savedConfig = localStorage.getItem("sheetwise_formConfig");
     if (savedConfig) {
       setConfig(savedConfig);
     }
 
-    console.log('SAVED CONFIG MOUNTING...');
+    console.log("SAVED CONFIG MOUNTING...");
   }, []);
 
   const [selectedRowNodes, setSelectedRowNodes] = useState<any[]>([]);
@@ -74,7 +74,7 @@ export const ExcelReader: FC = () => {
   try {
     inputs = JSON.parse(config)?.inputs || [];
   } catch (error) {
-    console.error('Invalid JSON:', error);
+    console.error("Invalid JSON:", error);
   }
 
   const [gridApi, setGridApi] = useState<any | null>(null);
@@ -86,7 +86,7 @@ export const ExcelReader: FC = () => {
     if (!file) return;
 
     const data = await file.arrayBuffer();
-    const workbook = XLSX.read(data, { type: 'buffer' });
+    const workbook = XLSX.read(data, { type: "buffer" });
     const worksheetName = workbook.SheetNames[0];
     setWorksheetName(worksheetName); // Store the worksheet name in state
     const worksheet = workbook.Sheets[worksheetName];
@@ -98,7 +98,7 @@ export const ExcelReader: FC = () => {
         field: `field${index}`,
         editable: true,
         filter: true,
-        type: 'text',
+        type: "text",
       }));
       const rows = json.slice(1).map((row, index) => {
         const rowData: { [key: string]: any } = {}; // Define rowData with an index signature
@@ -139,12 +139,12 @@ export const ExcelReader: FC = () => {
         JSON.stringify(updatedData)
       );
     } catch (error) {
-      console.error('Error Adding Data ', error);
+      console.error("Error Adding Data ", error);
     }
   };
 
   const handleInputChange = (field: string, value: string) => {
-    console.log('field ', field);
+    console.log("field ", field);
     const updatedData = { ...newRowData, [field]: value };
 
     // console.log('Updated Row Data:', updatedData);
@@ -159,7 +159,7 @@ export const ExcelReader: FC = () => {
         updatedRowData[event.rowIndex] = event.data;
         setRowData(updatedRowData);
       } catch (error) {
-        console.error('error updating cell: ', error);
+        console.error("error updating cell: ", error);
       }
     }
   };
@@ -174,21 +174,20 @@ export const ExcelReader: FC = () => {
         setRowData(rows);
         setWorksheetName(sheetName);
       } catch (error) {
-        console.error('error setting excel data ', error);
+        console.error("error setting excel data ", error);
       }
     }
   }, []);
 
   const deleteColumn = {
-    headerName: '',
-    field: 'delete',
+    headerName: "",
+    field: "delete",
     cellRenderer: (params: ICellRendererParams) => {
       return (
         <Button
           onClick={() => handleDelete(params.data)}
           className="h-8 w-16"
-          variant={'borderMagic'}
-        >
+          variant={"borderMagic"}>
           Delete
         </Button>
       );
@@ -214,17 +213,17 @@ export const ExcelReader: FC = () => {
       const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
 
       const newWorkbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(newWorkbook, worksheet, 'Sheet1');
+      XLSX.utils.book_append_sheet(newWorkbook, worksheet, "Sheet1");
 
       // Create a new Excel file
-      XLSX.writeFile(newWorkbook, 'updated_file.xlsx');
+      XLSX.writeFile(newWorkbook, "updated_file.xlsx");
     } catch (error) {
-      console.error('save excel', error);
+      console.error("save excel", error);
     }
   };
 
   const confirmDelete = (node: RowNode) => {
-    const confirm = window.confirm('Are you sure you want to delete this row?');
+    const confirm = window.confirm("Are you sure you want to delete this row?");
     if (confirm) {
       handleDelete(node);
     }
@@ -247,7 +246,7 @@ export const ExcelReader: FC = () => {
         JSON.stringify({ columns: columnDefs, rows: updatedRowData })
       );
     } catch (error) {
-      console.error('Error deleting row ', error);
+      console.error("Error deleting row ", error);
     }
   };
 
@@ -259,11 +258,11 @@ export const ExcelReader: FC = () => {
     setRowData(updatedRowData);
   };
 
-  const filteredCols = columnDefs.filter((colDef) => colDef.headerName !== '');
+  const filteredCols = columnDefs.filter((colDef) => colDef.headerName !== "");
 
   const loadFormConfiguration = () => {
     // Assume you have a function that retrieves the saved form configuration
-    const configString = localStorage.getItem('sheetwise_formConfig'); // Retrieve configuration from local storage
+    const configString = localStorage.getItem("sheetwise_formConfig"); // Retrieve configuration from local storage
     if (configString) {
       const config = JSON.parse(configString);
       const inputs = config.inputs || [];
@@ -273,7 +272,7 @@ export const ExcelReader: FC = () => {
           field: `field${index}`,
           editable: true,
           filter: true,
-          type: input.type === 'date' ? 'date' : 'text', // Map form input types to grid column types as necessary
+          type: input.type === "date" ? "date" : "text", // Map form input types to grid column types as necessary
         })
       );
 
@@ -295,11 +294,11 @@ export const ExcelReader: FC = () => {
           field: `field${index}`,
           editable: true,
           filter: true,
-          type: input.type === 'date' ? 'date' : 'text', // Assuming you want to handle date specially
+          type: input.type === "date" ? "date" : "text", // Assuming you want to handle date specially
         })
       );
     } catch (error) {
-      console.error('Error parsing inputs from config:', error);
+      console.error("Error parsing inputs from config:", error);
       return [];
     }
   };
@@ -322,7 +321,7 @@ export const ExcelReader: FC = () => {
 
   const renderFormFields = () => {
     return filteredCols.map((colDef) => {
-      if (colDef.type === 'date') {
+      if (colDef.type === "date") {
         return (
           <DatePicker
             key={colDef.field}
@@ -330,7 +329,7 @@ export const ExcelReader: FC = () => {
             onChange={(date) =>
               handleInputChange(
                 colDef.field,
-                date ? date.toISOString().split('T')[0] : ''
+                date ? date.toISOString().split("T")[0] : ""
               )
             }
             className="input-class"
@@ -340,9 +339,9 @@ export const ExcelReader: FC = () => {
         return (
           <input
             key={colDef.field}
-            type={colDef.type === 'number' ? 'number' : 'text'}
+            type={colDef.type === "number" ? "number" : "text"}
             placeholder={colDef.headerName}
-            value={newRowData[colDef.field] || ''}
+            value={newRowData[colDef.field] || ""}
             onChange={(e) => handleInputChange(colDef.field, e.target.value)}
             className="input-class"
           />
@@ -359,17 +358,15 @@ export const ExcelReader: FC = () => {
         <Button
           className="w-32 h-8 text-center"
           onClick={() => {
-            openModal('base-form');
+            openModal("base-form");
           }}
-          variant={'borderMagic'}
-        >
+          variant={"borderMagic"}>
           Add
         </Button>
         <Button
           onClick={saveChanges}
           className="w-32 h-8 text-center"
-          variant={'borderMagic'}
-        >
+          variant={"borderMagic"}>
           Save Changes
         </Button>
       </div>
@@ -377,22 +374,19 @@ export const ExcelReader: FC = () => {
         <Button
           onClick={handleUseCustomForm}
           className="w-32 h-8 text-center"
-          variant={'borderMagic'}
-        >
+          variant={"borderMagic"}>
           Use Custom Form
         </Button>
         <Button
           onClick={handleUseDefaultForm}
           className="w-32 h-8 text-center"
-          variant={'borderMagic'}
-        >
+          variant={"borderMagic"}>
           Use Default Form
         </Button>
         <Button
           onClick={saveChanges}
           className="w-32 h-8 text-center"
-          variant={'borderMagic'}
-        >
+          variant={"borderMagic"}>
           Save Changes
         </Button>
       </div>
@@ -400,8 +394,7 @@ export const ExcelReader: FC = () => {
       <div
         className="ag-theme-alpine-dark"
         id="myGrid"
-        style={{ height: 800, width: '100%', padding: 32 }}
-      >
+        style={{ height: 800, width: "100%", padding: 32 }}>
         <AgGridReact
           rowData={rowData}
           columnDefs={columnDefs}
@@ -423,93 +416,22 @@ export const ExcelReader: FC = () => {
         />
       </div>
 
-      <form
-        onSubmit={handleAddRow}
-        style={{
-          padding: '20px',
-          fontFamily: 'Arial, sans-serif',
-          color: 'whitesmoke',
-        }}
-      >
-        {inputs.map((input) => {
-          console.log(' input ==== ', input);
-
-          return (
-            <div key={input.id} style={{ margin: '10px 0' }}>
-              <label style={{ display: 'block', marginBottom: '5px' }}>
-                {input.label}
-                {input.type === 'select' ? (
-                  <select
-                    style={{
-                      marginLeft: '10px',
-                      padding: '5px',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    {input.options?.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                ) : (
-                  <input
-                    type={input.type}
-                    placeholder={input.placeholder}
-                    required={input.required}
-                    className=" text-slate-950"
-                    onChange={(e) =>
-                      handleInputChange(
-                        `field${inputs.indexOf(input)}`,
-                        e.target.value
-                      )
-                    }
-                    style={{
-                      marginLeft: '10px',
-                      padding: '5px',
-                      cursor: 'text',
-                    }}
-                  />
-                )}
-              </label>
-            </div>
-          );
-        })}
-        <div className="mt-2 inline-flex gap-4 w-full">
-          <Button
-            className="text-white font-semibold whitespace-nowrap flex-1"
-            variant={'shimmer'}
-            type="submit"
-          >
-            Add Row
-          </Button>
-          <Button
-            className="text-white font-semibold whitespace-nowrap flex-1"
-            variant={'shimmer'}
-            onClick={() => closeModal('base-form')}
-          >
-            Close
-          </Button>
-        </div>
-      </form>
-
       <Modal
-        id={'base-form'}
-        title={worksheetName || 'Base Form'}
-        className="w-96 h-96"
-      >
+        id={"base-form"}
+        title={worksheetName || "Base Form"}
+        className="w-96 h-96">
         <form onSubmit={handleAddRow} className="">
           <div className="mt-4 grid grid-cols-2 gap-4 justify-center items-center mb-4">
             {filteredCols.map((colDef) => {
-              console.log('filteredCols ', filteredCols);
-              return colDef.type === 'date' ? (
+              console.log("filteredCols ", filteredCols);
+              return colDef.type === "date" ? (
                 <DatePicker
                   key={colDef.field}
                   selected={newRowData[colDef.field]}
                   onChange={(date) =>
                     handleInputChange(
                       colDef.field,
-                      date ? date.toISOString().split('T')[0] : ''
+                      date ? date.toISOString().split("T")[0] : ""
                     )
                   }
                   className="px-3 py-2 text-zinc-950 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
@@ -517,9 +439,9 @@ export const ExcelReader: FC = () => {
               ) : (
                 <input
                   key={colDef.field}
-                  type={colDef.type === 'number' ? 'number' : 'text'}
+                  type={colDef.type === "number" ? "number" : "text"}
                   placeholder={colDef.headerName}
-                  value={newRowData[colDef.field] || ''}
+                  value={newRowData[colDef.field] || ""}
                   onChange={(e) =>
                     handleInputChange(colDef.field, e.target.value)
                   }
@@ -532,16 +454,14 @@ export const ExcelReader: FC = () => {
           <div className="mt-2 inline-flex gap-4 w-full">
             <Button
               className="text-white font-semibold whitespace-nowrap flex-1"
-              variant={'shimmer'}
-              type="submit"
-            >
+              variant={"shimmer"}
+              type="submit">
               Add Row
             </Button>
             <Button
               className="text-white font-semibold whitespace-nowrap flex-1"
-              variant={'shimmer'}
-              onClick={() => closeModal('base-form')}
-            >
+              variant={"shimmer"}
+              onClick={() => closeModal("base-form")}>
               Close
             </Button>
           </div>
