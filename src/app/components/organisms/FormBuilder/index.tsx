@@ -312,7 +312,7 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
                         </div>
                       ))
                     ) : (
-                      <p>No form Input's inserted</p>
+                      <p>No form Inputs inserted</p>
                     )}
                   </div>
                 </Disclosure.Panel>
