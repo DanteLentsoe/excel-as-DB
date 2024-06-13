@@ -33,3 +33,7 @@ export const appInfo = [
     description: `Your data stays on your device, with no need to send it to a server. Enjoy complete control over your data without worrying about privacy or security concerns.`,
   },
 ];
+
+export enum LocalStorageKeys {
+  ExcelSheetwiseData = 'excel_sheetwise_excelData',
+}

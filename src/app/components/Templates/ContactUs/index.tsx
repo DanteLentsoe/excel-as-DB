@@ -41,10 +41,10 @@ export const Contact = () => {
   const onSubmit = (data: Record<string, unknown> | undefined) => {
     emailjs
       .send(
-        String(process.env?.EMAIL_JS_SERVICE_ID),
-        String(process.env?.EMAIL_JS_TEMPLATE_ID),
+        String(process.env?.NEXT_PUBLIC_EMAIL_JS_SERVICE_ID),
+        String(process.env?.NEXT_PUBLIC_EMAIL_JS_TEMPLATE_ID),
         data,
-        String(process.env?.EMAIL_JS_USER_ID)
+        String(process.env?.NEXT_PUBLIC_EMAIL_JS_USER_ID)
       )
       .then(
         (response) => {

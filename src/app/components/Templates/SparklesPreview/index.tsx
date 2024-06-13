@@ -27,7 +27,13 @@ export function SparklesPreview() {
         >
           Get Started
         </Button>
-        <Button variant={'shimmer'} className=" text-white">
+        <Button
+          variant={'shimmer'}
+          className=" text-white"
+          onClick={() => {
+            route.push('#learn-more');
+          }}
+        >
           Learn More
         </Button>
       </div>

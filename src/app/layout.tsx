@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
+import 'react-tooltip/dist/react-tooltip.css';
 import './globals.css';
 import Head from 'next/head';
 import { ClerkProvider } from '@clerk/nextjs';

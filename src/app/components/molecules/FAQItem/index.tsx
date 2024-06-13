@@ -2,11 +2,12 @@
 
 import { Disclosure } from '@headlessui/react';
 import { ChevronUpIcon } from '@heroicons/react/20/solid';
-import { FC } from 'react';
+import { FC, ReactNode } from 'react';
 
 export type FAQItemProps = {
   question: string;
   answer: string;
+  children?: ReactNode;
 };
 
 /**
@@ -22,7 +23,7 @@ export type FAQItemProps = {
  *   answer="If you're unhappy with your purchase for any reason, email us within 90 days and we'll refund you in full, no questions asked."
  * />
  */
-export const FAQItem: FC<FAQItemProps> = ({ question, answer }) => (
+export const FAQItem: FC<FAQItemProps> = ({ question, answer, children }) => (
   <Disclosure
     as="div"
     className="mt-2 bg-slate-800/[0.8] border border-white/[0.2] rounded-lg"
@@ -39,6 +40,8 @@ export const FAQItem: FC<FAQItemProps> = ({ question, answer }) => (
         </Disclosure.Button>
         <Disclosure.Panel className="px-4 pb-2 pt-4 text-sm text-gray-400">
           {answer}
+
+          <div className="mt-2 mb-2">{children}</div>
         </Disclosure.Panel>
       </>
     )}
